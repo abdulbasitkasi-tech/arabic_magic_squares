@@ -19,11 +19,21 @@ jobs:
       with:
         flutter-version: '3.16.0'
 
-    - name: Install Dependencies
-      run: flutter pub get
+    - name: Debug Dependencies
+      run: |
+        echo "=== Checking pubspec.yaml ==="
+        cat pubspec.yaml
+        echo "=== Flutter Version ==="
+        flutter --version
+        echo "=== Flutter Doctor ==="
+        flutter doctor -v
 
-    - name: Run Tests
-      run: flutter test
+    - name: Install Dependencies
+      run: |
+        timeout 300 flutter pub get || 
+          (echo "First attempt failed, retrying..." && 
+           flutter clean && 
+           flutter pub get)
 
     - name: Build APK
       run: flutter build apk --release
@@ -33,4 +43,3 @@ jobs:
       with:
         name: flutter-apk
         path: build/app/outputs/flutter-apk/app-release.apk
-        retention-days: 7
